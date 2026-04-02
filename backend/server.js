@@ -41,6 +41,34 @@ app.get('/', (req, res) => res.json({
   message: `School Sports PURNODAYA \n
 Live Scoreboard API is running` }));
 
+// Manual seed endpoint (visit in browser to create admin user)
+app.get('/api/seed', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const Match = require('./models/Match');
+    
+    const adminExists = await User.findOne({ username: 'admin' });
+    if (adminExists) {
+      return res.json({ message: '✅ Admin user already exists. No action needed.', adminId: adminExists._id });
+    }
+    
+    const admin = await User.create({ username: 'admin', password: 'purnodaya25', role: 'admin' });
+    
+    const matchCount = await Match.countDocuments();
+    if (matchCount === 0) {
+      await Match.create({
+        sport: 'cricket', teamA: 'Red Eagles', teamB: 'Blue Lions', status: 'live',
+        score: { teamA: { runs: 145, wickets: 3, overs: '18.2' }, teamB: { runs: 0, wickets: 0, overs: '0.0' }, currentInnings: 1 },
+        createdBy: admin._id,
+      });
+    }
+    
+    res.json({ message: '✅ Admin user created successfully! Login with admin / purnodaya25', adminId: admin._id });
+  } catch (error) {
+    res.status(500).json({ message: '❌ Seed failed', error: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────
 // Socket.IO Events
 // ─────────────────────────────────────────────
