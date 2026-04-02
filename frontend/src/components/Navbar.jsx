@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
-import SportIcon from './SportIcon';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -40,12 +39,7 @@ export default function Navbar() {
         </div>
       </Link>
 
-      {/* Center sport icons */}
-      <div style={{ display: 'flex', gap: '6px', fontSize: '1.2rem' }}>
-        {['cricket', 'badminton', 'kabaddi', 'kho-kho'].map((sport, i) => (
-          <SportIcon key={i} sport={sport} style={{ opacity: 0.8 }} />
-        ))}
-      </div>
+
 
       {/* Right section */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
