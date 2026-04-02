@@ -69,6 +69,18 @@ app.get('/api/seed', async (req, res) => {
   }
 });
 
+// Force reset admin user (deletes and recreates with correct password)
+app.get('/api/seed/reset', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    await User.deleteOne({ username: 'admin' });
+    const admin = await User.create({ username: 'admin', password: 'purnodaya25', role: 'admin' });
+    res.json({ message: '✅ Admin user reset! Login with admin / purnodaya25', adminId: admin._id });
+  } catch (error) {
+    res.status(500).json({ message: '❌ Reset failed', error: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────
 // Socket.IO Events
 // ─────────────────────────────────────────────
