@@ -91,16 +91,24 @@ io.on('connection', (socket) => {
 
   const seedData = async () => {
     try {
-      const count = await User.countDocuments();
-      if (count === 0) {
-        console.log('🌱 Database is empty. Seeding initial data...');
+      const adminExists = await User.findOne({ username: 'admin' });
+      
+      if (!adminExists) {
+        console.log('🌱 Admin account not found. Seeding initial data...');
         const admin = await User.create({ username: 'admin', password: 'purnodaya25', role: 'admin' });
-        await Match.create({
-          sport: 'cricket', teamA: 'Red Eagles', teamB: 'Blue Lions', status: 'live',
-          score: { teamA: { runs: 145, wickets: 3, overs: '18.2' }, teamB: { runs: 0, wickets: 0, overs: '0.0' }, currentInnings: 1 },
-          createdBy: admin._id,
-        });
-        console.log('✅ Auto-seed completed (admin / purnodaya25)');
+        
+        // Also seed a default match if the database is literally empty
+        const matchCount = await Match.countDocuments();
+        if (matchCount === 0) {
+          await Match.create({
+            sport: 'cricket', teamA: 'Red Eagles', teamB: 'Blue Lions', status: 'live',
+            score: { teamA: { runs: 145, wickets: 3, overs: '18.2' }, teamB: { runs: 0, wickets: 0, overs: '0.0' }, currentInnings: 1 },
+            createdBy: admin._id,
+          });
+        }
+        console.log('✅ Admin account created (admin / purnodaya25)');
+      } else {
+        console.log('✅ Admin account verified');
       }
     } catch (e) { console.log('SEED ERROR:', e); }
   };
