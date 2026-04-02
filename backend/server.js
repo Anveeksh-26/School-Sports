@@ -14,16 +14,27 @@ const matchRoutes = require('./routes/matchRoutes');
 const app = express();
 const server = http.createServer(app);
 
+// Allow requests from localhost and all Vercel deployments
+const allowedOrigins = (origin, callback) => {
+  if (!origin) return callback(null, true); // allow non-browser requests (Postman, curl)
+  const allowed =
+    origin.startsWith('http://localhost') ||
+    origin.endsWith('.vercel.app') ||
+    origin === process.env.CLIENT_URL;
+  if (allowed) return callback(null, true);
+  return callback(new Error('CORS not allowed'));
+};
+
 // Socket.IO setup with CORS
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   },
 });
 
 // Middleware
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // Attach io to request so controllers can emit events
